@@ -125,7 +125,7 @@ for j in range(1):
     
     plt.subplot(3,1,1)
     for i in range(J):
-        plt.plot(time,X_EnKF[j,:,1,i],'C0',alpha = 0.1)
+        plt.plot(time,X_EnKF[j,:,1,i],'g',alpha = 0.1)
     plt.plot(time,X_true[j,:,1],'k--',label = 'True state')
     #plt.xlabel('time')
     plt.ylabel('EnKF')
@@ -139,7 +139,7 @@ for j in range(1):
     plt.subplot(3,1,2)
     #for j in range(1):
     for i in range(SAMPLE_SIZE):
-        plt.plot(time,X_OT[j,:,1,i],'C0',alpha = 0.1)
+        plt.plot(time,X_OT[j,:,1,i],'r',alpha = 0.1)
     plt.plot(time,X_true[j,:,1],'k--',alpha=1)
     #plt.xlabel('time')
     plt.ylabel('OT')
@@ -151,16 +151,14 @@ for j in range(1):
     plt.subplot(3,1,3)
     #for j in range(1):
     for i in range(SAMPLE_SIZE):
-        plt.plot(time,X_SIR[j,:,1,i],'C0',alpha = 0.1)
+        plt.plot(time,X_SIR[j,:,1,i],'b',alpha = 0.1)
     plt.plot(time,X_true[j,:,1],'k--',alpha=1)
     plt.xlabel('time')
     plt.ylabel('SIR')
     #plt.legend()
 plt.show()
 
-# =============================================================================
-# sys.exit()
-# =============================================================================
+sys.exit()
 
 #%%
 def kernel(X,Y,method = 'linear', degree=2, offset=0.5, sigma=1, beta=1.5):
@@ -239,11 +237,22 @@ sys.exit()
 # =============================================================================
 
 
+# =============================================================================
+# Performance_mse_Enkf = ((relu(X_EnKF).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) 
+# Performance_mse_OT = ((relu(X_OT).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) 
+# Performance_mse_SIR = ((relu(X_SIR).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) 
+# =============================================================================
 
-Performance_mse_Enkf = ((relu(X_EnKF).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) + ((abs(X_EnKF).mean(axis = 3) - abs(X_true))**2).mean(axis=(0,2)) 
-Performance_mse_OT = ((relu(X_OT).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) +  ((abs(X_OT).mean(axis = 3) - abs(X_true))**2).mean(axis=(0,2))
-Performance_mse_SIR = ((relu(X_SIR).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) + ((abs(X_SIR).mean(axis = 3) - abs(X_true))**2).mean(axis=(0,2)) 
 
+# =============================================================================
+# Performance_mse_Enkf = ((relu(X_EnKF).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) + ((abs(X_EnKF).mean(axis = 3) - abs(X_true))**2).mean(axis=(0,2)) 
+# Performance_mse_OT = ((relu(X_OT).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) +  ((abs(X_OT).mean(axis = 3) - abs(X_true))**2).mean(axis=(0,2))
+# Performance_mse_SIR = ((relu(X_SIR).mean(axis = 3) - relu(X_true))**2).mean(axis=(0,2)) + ((abs(X_SIR).mean(axis = 3) - abs(X_true))**2).mean(axis=(0,2)) 
+# =============================================================================
+
+Performance_mse_Enkf = ((0.5*relu(X_EnKF).mean(axis = 3) + 0.5*abs(X_EnKF).mean(axis = 3) - 0.5*relu(X_true) - 0.5*abs(X_true))**2).mean(axis=(0,2)) 
+Performance_mse_OT = ((0.5*relu(X_OT).mean(axis = 3) + 0.5*abs(X_OT).mean(axis = 3) - 0.5*relu(X_true) - 0.5*abs(X_true))**2).mean(axis=(0,2)) 
+Performance_mse_SIR = ((0.5*relu(X_SIR).mean(axis = 3) + 0.5*abs(X_SIR).mean(axis = 3) - 0.5*relu(X_true) - 0.5*abs(X_true))**2).mean(axis=(0,2)) 
 
 # =============================================================================
 # np.savez('1.0_xx_Performance_mse_OT_without.npz',Performance_mse_OT_without=Performance_mse_OT)
@@ -272,29 +281,37 @@ Performance_mse_SIR = ((relu(X_SIR).mean(axis = 3) - relu(X_true))**2).mean(axis
 # =============================================================================
 
 
-plt.figure()
-plt.subplot(1,2,1)
-plt.semilogy(time,MSE_EnKF,'g-.',label="EnKF")
-plt.semilogy(time,MSE_OT,'r:',label="OT" )
+plt.figure(figsize=(7.0,4.8))
+# =============================================================================
+# plt.subplot(1,2,1)
+# =============================================================================
+plt.semilogy(time,MSE_EnKF,'g--',label="EnKF")
+plt.semilogy(time,MSE_OT,'r-.',label="OT" )
 plt.semilogy(time,MSE_SIR,'b:',label="SIR" )
 plt.xlabel('time')
 plt.ylabel('mse')
 plt.title('$h(X_t) = X_t$')
-plt.legend()
+# =============================================================================
+# plt.legend()
+# =============================================================================
 
 
-plt.subplot(1,2,2)
-#plt.figure()
+# =============================================================================
+# plt.subplot(1,2,2)
+# =============================================================================
+plt.figure(figsize=(7.0,4.8))
 # =============================================================================
 # plt.semilogy(time,Performance_mse_Enkf,'g-.',label="EnKF")
 # plt.semilogy(time,Performance_mse_OT,'r:',label="OT" )
 # =============================================================================
-plt.semilogy(time,Performance_mse_Enkf,'g-.')
-plt.semilogy(time,Performance_mse_OT,'r:')
+plt.semilogy(time,Performance_mse_Enkf,'g--')
+plt.semilogy(time,Performance_mse_OT,'r-.')
 plt.semilogy(time,Performance_mse_SIR,'b:')
 plt.xlabel('time')
-plt.ylabel('mse')
-plt.title('h(X_t) = $X^2_t$') # Change this %%%%%%%%%%%%%%%%%%%%%%%%%%
+# =============================================================================
+# plt.ylabel('mse')
+# =============================================================================
+plt.title('$h(X_t) = X^2_t$') # Change this %%%%%%%%%%%%%%%%%%%%%%%%%%
 plt.show()
 
 # =============================================================================
@@ -316,9 +333,7 @@ plt.show()
 
 
 
-# =============================================================================
-# sys.exit()
-# =============================================================================
+sys.exit()
 #%%
 l = 1
 for j in range(1):  
