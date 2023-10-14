@@ -2,10 +2,14 @@ import torch
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from torch.optim.lr_scheduler import MultiStepLR, StepLR, MultiplicativeLR, ExponentialLR
 from torch.distributions.multivariate_normal import MultivariateNormal
+import sys
 
 plt.rc('font', size=13)          # controls default text sizes
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 class f_nn(torch.nn.Module):
     def __init__(self, x_dim, y_dim, hidden_dim):
@@ -84,8 +88,7 @@ class T_map(nn.Module):
 #         C_hat_hh = (b.T@b)/x.shape[0]
 #         K = C_hat_vh @ torch.linalg.inv(C_hat_hh + torch.eye(self.input_dim[1])*gamma*gamma)
 #         x = x + (K@ (y - h(x.T).T - eta).T).T 
-# =============================================================================
-        
+# =============================================================================  
         
         X = self.layer_input(torch.concat((x,y),dim=1))
         
@@ -99,8 +102,8 @@ class T_map(nn.Module):
 #         xy = self.activationReLu(xy)
 #         xy = self.layer22 (xy)
 #         xy = self.activationReLu(xy)
+#         xy = self.layerout(xy) + x
 # =============================================================================
-        
         xy = self.layerout(xy + X)#+x
         return xy 
     
@@ -148,81 +151,103 @@ def train(f,T,X,Y,ITERS,LR,BATCH_SIZE):
                 loss_f = f_xy.mean() - f_T.mean()
                 loss = f_xy.mean() - f_T.mean() + ((X-T_XY)*(X-T_XY)).sum(axis=1).mean()
                 print("Iteration: %d/%d, loss = %.4f" %(i+1,ITERS,loss.item()))
-                
-# =============================================================================
-#         scheduler_f.step()
-#         scheduler_T.step()
-# =============================================================================
+        
+        if experiment == "squared" and sigma_w == 0.04: 
+            if i>1000:
+                scheduler_f.step()
+                scheduler_T.step()
+        else:
+            scheduler_f.step()
+            scheduler_T.step()
                     
 #%%
-N = 10000
+N = 1000
+NN = [100,500]
 
-experiment = "squared"
+L = 2
+dy = 2
 
+# experiment = "squared"
+experiment = "bimodal"
+
+sigma_w = 0.4
+
+if experiment == "bimodal":
 # =============================================================================
-# experiment = "bimodal"
+#     x_lim = 3.3
 # =============================================================================
+    x_lim = 2.8
+    bins = 10
+    loc = 2
+else:
+    x_lim = 3.3 
+    bins = 24
+    loc = 2
 
 
-sigma_w = 0.04
 
 if experiment == "bimodal":
     sigma = 0.4
     def h(x):
         return x
     
-    X = sigma*torch.randn(N,1) + 2*torch.randint(2,(N,1))-1
-    Y =  X + sigma_w*torch.randn(N,1)
+    X = sigma*torch.randn(N,dy) + 2*torch.randint(2,(N,dy))-1
+    Y =  X + sigma_w*torch.randn(N,dy)
 
 if experiment == "squared":
-    X =  torch.randn(N,1) 
+    X =  torch.randn(N,L) 
     def h(x):
+# =============================================================================
+#         return 0.5*x[:,0]*x[:,0]
+# =============================================================================
         return 0.5*x*x
-    Y = h(X) + sigma_w*torch.randn(N,1)
+    Y = h(X).view(-1,dy) + sigma_w*torch.randn(N,dy)
 
 gamma = sigma_w    
 
-plt.plot(X.numpy(),Y.numpy(),marker='o',ms=5,ls='none')
-plt.show()
-
-    
-#X =  2*torch.rand(N,1) - 1
-#Y = 2./3*torch.rand(N,1) - 1./3
-#Y[X<-1./3] += (torch.randint(2,Y[X<-1./3].shape)*2-1)*2./3
-#Y[X>1./3] += (torch.randint(2,Y[X>1./3].shape)*2-1)*2./3
-
 #%%
 num_neurons = 32
-f = f_nn(1, 1, num_neurons)
-T = T_map(1,1,num_neurons)
+
+
+f  = f_nn(L, dy, num_neurons)
+T = T_map(L,dy,num_neurons)
 f.apply(init_weights)
 T.apply(init_weights)     
 #with torch.no_grad():
 #    f.layer.weight = torch.nn.parameter.Parameter(torch.nn.functional.relu(f.layer.weight))
 
-ITERS = int(1e4)
+ITERS = int(2*1e4)
 BATCH_SIZE = 128
 LR = 1e-3
 train(f,T,X,Y,ITERS,LR,BATCH_SIZE)
 
 #%%
 plt.figure(figsize = (20, 7.2))
-grid = plt.GridSpec(2, 4, wspace =0.2, hspace = 0.2)
+grid = plt.GridSpec(3, 4, wspace =0.2, hspace = 0.2)
 
 Y_shuffled = Y[torch.randperm(Y.shape[0])].view(Y.shape)
 x_plot = T.forward(X,Y_shuffled).detach().numpy()
 y_plot = Y_shuffled.numpy()
 
-plt.subplot(grid[0:, 0:2])
+plt.subplot(grid[1:, 0])
 # =============================================================================
 # plt.figure(figsize=(8,6))
 # =============================================================================
-plt.plot(X.numpy(),Y.numpy(),marker='o',ms=5,ls='none',label=r'$P_{XY}$')
-plt.plot(x_plot,y_plot,marker='o',ms=5,ls='none',label = r"$S{\#}P_X \otimes P_Y$" , alpha = 0.5)
-plt.xlabel(r'$x$',fontsize=20)
-plt.ylabel(r'$y$',fontsize=20)
+plt.plot(X[:,0].numpy(),Y[:,0].numpy(),marker='o',ms=5,ls='none',label=r'$P_{XY}$')
+plt.plot(x_plot[:,0],y_plot[:,0],marker='o',ms=5,ls='none',label = r"$S{\#}P_X \otimes P_Y$" , alpha = 0.5)
+plt.xlabel(r'$X$')
+plt.ylabel(r'$Y$')
 plt.axhline(y=1,color='k',linestyle = '--')
-plt.legend(fontsize=16)
+plt.xlim([-x_lim,x_lim])
+if experiment == "squared": 
+    if sigma_w == 0.4:
+        plt.ylim([-1.9,5])
+    else:
+        plt.ylim([-0.5,4.5])
+plt.legend()
+# =============================================================================
+# plt.legend(fontsize=16)
+# =============================================================================
 # =============================================================================
 # plt.savefig("%s.pdf" %experiment)
 # =============================================================================
@@ -243,42 +268,261 @@ if experiment == "bimodal":
     pxy = pxy/np.sum(pxy*dx)
 
 if experiment == "squared":
+    def h_1D(x):
+        return (0.5*x*x)
     px = np.exp(-xx*xx/2) 
     px = px/np.sum(px*dx)
-    pyx =  np.exp(-(y-h(xx))*(y-h(xx))/(2*sigma_w*sigma_w))
+    pyx =  np.exp(-(y-h_1D(xx))*(y-h_1D(xx))/(2*sigma_w*sigma_w))
     pxy = px*pyx
     pxy = pxy/np.sum(pxy*dx)   
 
 # =============================================================================
 # plt.figure(figsize=(16,6))
 # =============================================================================
-plt.subplot(grid[0, 2:])
+plt.subplot(grid[0, 0])
 # =============================================================================
 # plt.subplot(1,2,1)
 # =============================================================================
 plt.plot(xx,px,label=r"$P_X$")
-plt.hist(X.numpy(),bins=24,density=True,label=r"$X^i$", alpha = 0.5)
-plt.legend(fontsize=16,loc = 2)
+plt.hist(X[:,0].numpy(),bins=24,density=True,label=r"$X^i$", alpha = 0.5)
+plt.legend(loc = 2)
+ax = plt.gca()
+ax.get_xaxis().set_visible(False)
+ax.get_yaxis().set_visible(False)
+plt.xlim([-x_lim,x_lim])
 
-plt.subplot(grid[1, 2:])
+
+if experiment == "squared": 
+    bins = np.arange(-x_lim,x_lim,x_lim*2/24)
+    if sigma_w == 0.04:
+        x_lim = 2.1
+        loc = 9
+        bins = np.arange(-x_lim,x_lim,x_lim*2/24)
+
+
+plt.subplot(grid[1, -1])
 # =============================================================================
 # plt.subplot(1,2,2)
 # =============================================================================
-plt.plot(xx,pxy,label=r"$P_{X|Y=1}$")
-plt.hist(T.forward(X,y*torch.ones(N,1)).detach().numpy(),bins=24,density=True,label=r"$T(X^i,Y=1)$", alpha = 0.5)
+plt.plot(xx,pxy,'k')#,label=r"$P_{X|Y=1}$")
+X_OT = T.forward(X,y*torch.ones(N,dy))
+plt.hist(X_OT.detach().numpy()[:,0],bins=bins,color='r',density=True,label=r"OT", alpha = 0.5)
 
-plt.legend(fontsize=16,loc = 2)
+
+# =============================================================================
+# plt.legend(loc = loc)
+# =============================================================================
 # =============================================================================
 # plt.savefig("%s-p.pdf" %experiment)
 # =============================================================================
+ax = plt.gca()
+ax.get_xaxis().set_visible(False)
+ax.get_yaxis().set_visible(False)
+plt.xlim([-x_lim,x_lim])
+#%%
+  
+y_hat = h(X).view(-1,dy)
+eta_EnKF = np.random.multivariate_normal(np.zeros(dy),gamma*gamma * np.eye(dy),N)    
+y_hatEnKF = y_hat + eta_EnKF
+
+m_hatEnKF = X.mean(axis=0)
+
+#o_hatEnKF = (x_hatEnKF**3).mean(axis=1)
+o_hatEnKF = (y_hat).mean(axis=0)
+
+a = (X - m_hatEnKF)
+
+#b = ((x_hatEnKF**3).transpose() - o_hatEnKF)
+b = (y_hat - o_hatEnKF)
+
+C_hat_vh = ((a.T@b)/N).view(L,dy)
+C_hat_hh = ((b.T@b)/N).view(dy,dy)
+K_EnKF = np.matmul(C_hat_vh,np.linalg.inv(C_hat_hh + np.eye(dy)*gamma*gamma))
+  
+X_EnKF = X + (y*torch.ones(N,dy) - y_hatEnKF) @ K_EnKF.T
+
+plt.subplot(grid[0, -1])
+plt.plot(xx,pxy,'k')#,label=r"$P_{X|Y=1}$")
+plt.hist(X_EnKF.detach().numpy()[:,0],bins=bins,color='g',density=True,label=r"EnKF", alpha = 0.5)
+plt.title('N = {}'.format(N))
+# =============================================================================
+# plt.hist(X[:,0],bins=24,density=True,label=r"$X_0$", alpha = 0.5)
+# =============================================================================
+
+# =============================================================================
+# plt.legend(loc = loc)
+# =============================================================================
+
+ax = plt.gca()
+ax.get_xaxis().set_visible(False)
+ax.get_yaxis().set_visible(False)
+plt.xlim([-x_lim,x_lim])
+
+
+
+
+#%% SIR
+rng = np.random.default_rng()
+
+X_SIR = X #+ torch.randn(N,L) 
+y_hat = h(X_SIR).view(-1,dy)
+
+W = torch.sum((y*torch.ones(N,dy) - y_hat)*(y*torch.ones(N,dy) - y_hat),1)/(2*gamma*gamma)
+#print(W)
+W = W - torch.min(W)
+weight = torch.exp(-W).T
+#weight = np.exp(-np.sum((y[i+1,] - h(x_SIR[k,i+1,]).T)*(y[i+1] - h(x_SIR[k,i+1,]).T),axis=1)/(2*gamma*gamma)).T
+#W[k,i+1,] = weight/np.sum(weight)
+weight = weight/torch.sum(weight)
+#x_SIR[k,i+1,0,] = rng.choice(x_SIR[k,i+1,0,], J, p = W[k,i+1,0,])
+index = rng.choice(np.arange(N), N, p = weight.detach().numpy())
+X_sir = X_SIR[index,:]
+
+plt.subplot(grid[2, -1])
+plt.plot(xx,pxy,'k')#,label=r"$P_{X|Y=1}$")
+plt.hist(X_sir.detach().numpy()[:,0],bins=bins,density=True,color='b',label=r"SIR", alpha = 0.5)
+plt.xlabel('X')
+# =============================================================================
+# plt.hist(X[:,0],bins=24,density=True,label=r"$X_0$", alpha = 0.5)
+# =============================================================================
+# =============================================================================
+# plt.legend(loc = loc)
+# =============================================================================
+ax = plt.gca()
+# =============================================================================
+# ax.get_xaxis().set_visible(False)
+# =============================================================================
+ax.get_yaxis().set_visible(False)
+plt.xlim([-x_lim,x_lim])
+
+#%%
+
+
+for i in range(len(NN)):
+    N = NN[i]
+    
+    if experiment == "bimodal":
+        sigma = 0.4
+        def h(x):
+            return x
+        
+        X = sigma*torch.randn(N,dy) + 2*torch.randint(2,(N,dy))-1
+        Y =  X + sigma_w*torch.randn(N,dy)
+    
+    if experiment == "squared":
+        X =  torch.randn(N,L) 
+        def h(x):
+    # =============================================================================
+    #         return 0.5*x[:,0]*x[:,0]
+    # =============================================================================
+            return 0.5*x*x
+        Y = h(X).view(-1,dy) + sigma_w*torch.randn(N,dy)
+    
+    
+    Y_shuffled = Y[torch.randperm(Y.shape[0])].view(Y.shape)
+    
+    ###############################################################################
+    y_hat = h(X).view(-1,dy)
+    eta_EnKF = np.random.multivariate_normal(np.zeros(dy),gamma*gamma * np.eye(dy),N)    
+    y_hatEnKF = y_hat + eta_EnKF
+    
+    m_hatEnKF = X.mean(axis=0)
+    
+    #o_hatEnKF = (x_hatEnKF**3).mean(axis=1)
+    o_hatEnKF = (y_hat).mean(axis=0)
+    
+    a = (X - m_hatEnKF)
+    
+    #b = ((x_hatEnKF**3).transpose() - o_hatEnKF)
+    b = (y_hat - o_hatEnKF)
+    
+    C_hat_vh = ((a.T@b)/N).view(L,dy)
+    C_hat_hh = ((b.T@b)/N).view(dy,dy)
+    K_EnKF = np.matmul(C_hat_vh,np.linalg.inv(C_hat_hh + np.eye(dy)*gamma*gamma))
+      
+    X_EnKF = X + (y*torch.ones(N,dy) - y_hatEnKF) @ K_EnKF.T
+    
+    plt.subplot(grid[0, i+1])
+    if i==0:
+        plt.plot(xx,pxy,'k',label=r"$P_{X|Y=1}$")
+        plt.legend(loc = loc)
+    else:
+        plt.plot(xx,pxy,'k')#,label=r"$P_{X|Y=1}$")
+    plt.hist(X_EnKF.detach().numpy()[:,0],bins=bins,color='g',density=True,label=r"EnKF", alpha = 0.5)
+    plt.title('N = {}'.format(N))
+    if i==0:
+        plt.legend(loc = loc)
+    # =============================================================================
+    # plt.hist(X[:,0],bins=24,density=True,label=r"$X_0$", alpha = 0.5)
+    # =============================================================================
+    
+    
+    
+    ax = plt.gca()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    plt.xlim([-x_lim,x_lim])
+    
+    ###############################################################################
+    f  = f_nn(L, dy, num_neurons)
+    T = T_map(L,dy,num_neurons)
+    f.apply(init_weights)
+    T.apply(init_weights)     
+    train(f,T,X,Y,ITERS,LR,BATCH_SIZE)
+    
+    plt.subplot(grid[1, i+1])
+    # =============================================================================
+    # plt.subplot(1,2,2)
+    # =============================================================================
+    plt.plot(xx,pxy,'k')#,label=r"$P_{X|Y=1}$")
+    X_OT = T.forward(X,y*torch.ones(N,dy))
+    plt.hist(X_OT.detach().numpy()[:,0],bins=bins,color='r',density=True,label=r"OT", alpha = 0.5)
+    
+# =============================================================================
+#     plt.hist(T.forward(X,y*torch.ones(N,dy)).detach().numpy()[:,0],bins=24,color='r',density=True,label=r"OT", alpha = 0.5)
+# =============================================================================
+    if i==0:
+        plt.legend(loc = loc)
+    # =============================================================================
+    # plt.savefig("%s-p.pdf" %experiment)
+    # =============================================================================
+    ax = plt.gca()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    plt.xlim([-x_lim,x_lim])
+    
+    
+    ###############################################################################
+    X_SIR = X #+ torch.randn(N,L) 
+    y_hat = h(X_SIR).view(-1,dy)
+    
+    W = torch.sum((y*torch.ones(N,dy) - y_hat)*(y*torch.ones(N,dy) - y_hat),1)/(2*gamma*gamma)
+    #print(W)
+    W = W - torch.min(W)
+    weight = torch.exp(-W).T
+    #weight = np.exp(-np.sum((y[i+1,] - h(x_SIR[k,i+1,]).T)*(y[i+1] - h(x_SIR[k,i+1,]).T),axis=1)/(2*gamma*gamma)).T
+    #W[k,i+1,] = weight/np.sum(weight)
+    weight = weight/torch.sum(weight)
+    #x_SIR[k,i+1,0,] = rng.choice(x_SIR[k,i+1,0,], J, p = W[k,i+1,0,])
+    index = rng.choice(np.arange(N), N, p = weight.detach().numpy())
+    X_sir = X_SIR[index,:]
+    
+    plt.subplot(grid[2, i+1])
+    plt.plot(xx,pxy,'k')#,label=r"$P_{X|Y=1}$")
+    plt.hist(X_sir.detach().numpy()[:,0],bins=bins,density=True,color='b',label=r"SIR", alpha = 0.5)
+    plt.xlabel('X')
+    # =============================================================================
+    # plt.hist(X[:,0],bins=24,density=True,label=r"$X_0$", alpha = 0.5)
+    # =============================================================================
+    if i==0:
+        plt.legend(loc = loc)
+    ax = plt.gca()
+    # =============================================================================
+    # ax.get_xaxis().set_visible(False)
+    # =============================================================================
+    ax.get_yaxis().set_visible(False)
+    plt.xlim([-x_lim,x_lim])
+# =============================================================================
+#     plt.legend(loc = loc)
+# =============================================================================
 plt.show()
-
-
-
-
-
-
-
-
-
-
