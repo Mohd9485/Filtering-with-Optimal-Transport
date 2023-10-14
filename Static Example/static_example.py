@@ -168,11 +168,11 @@ L = 2
 dy = 2
 
 experiment = "squared"
-# experiment = "bimodal"
+# experiment = "linear"
 
 sigma_w = 0.4
 
-if experiment == "bimodal":
+if experiment == "linear":
 # =============================================================================
 #     x_lim = 3.3
 # =============================================================================
@@ -186,7 +186,7 @@ else:
 
 
 
-if experiment == "bimodal":
+if experiment == "linear":
     sigma = 0.4
     def h(x):
         return x
@@ -260,7 +260,7 @@ y = 1.0
 xx = np.linspace(-3,3,100)
 dx = 6./100
 
-if experiment == "bimodal":
+if experiment == "linear":
     px = np.exp(-(xx-1)*(xx-1)/(2*sigma*sigma)) + np.exp(-(xx+1)*(xx+1)/(2*sigma*sigma))
     px = px/np.sum(px*dx)
     pyx =  np.exp(-(y-xx)*(y-xx)/(2*sigma_w*sigma_w))
@@ -401,7 +401,7 @@ plt.xlim([-x_lim,x_lim])
 for i in range(len(NN)):
     N = NN[i]
     
-    if experiment == "bimodal":
+    if experiment == "linear":
         sigma = 0.4
         def h(x):
             return x
