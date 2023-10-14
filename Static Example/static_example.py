@@ -167,8 +167,8 @@ NN = [100,500]
 L = 2
 dy = 2
 
-# experiment = "squared"
-experiment = "bimodal"
+experiment = "squared"
+# experiment = "bimodal"
 
 sigma_w = 0.4
 
