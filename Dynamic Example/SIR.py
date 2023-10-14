@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar 24 14:48:34 2023
-
-@author: jarrah
-"""
 import numpy as np
 import time
 def SIR(X,Y,X0,A,h,t,tau,Noise):
