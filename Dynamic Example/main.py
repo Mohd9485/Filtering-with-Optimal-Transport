@@ -64,7 +64,7 @@ x0_amp = 1/noise # Amplifiying the initial state
 Noise = [noise,sigmma,sigmma0,gamma,x0_amp]
 
 J = int(1e3) # Number of ensembles EnKF
-AVG_SIM = 2 # Number of Simulations to average over
+AVG_SIM = 100 # Number of Simulations to average over
 
 # OT networks parameters
 parameters = {}
