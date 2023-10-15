@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jul  9 15:26:48 2023
-
-@author: jarrah
-"""
-
 import numpy as np
 import time
 import torch
@@ -134,18 +126,16 @@ def OT(X,Y,X0_const,parameters,A,h,t,tau,Noise,rk45):
             # Input is of size
             def forward(self, x, y):
                 # EnKF settings
-# =============================================================================
-#                 eta = self.dist.sample((x.shape[0],))
-#                 
-#                 m_hat = x.T.mean(axis=1)
-#                 o_hat = (h(x.T)).mean(axis=1)
-#                 a = (x - m_hat)
-#                 b = (h(x.T).T - o_hat)
-#                 C_hat_vh = (a.T@b)/x.shape[0]
-#                 C_hat_hh = (b.T@b)/x.shape[0]
-#                 K = C_hat_vh @ torch.linalg.inv(C_hat_hh + torch.eye(self.input_dim[1])*gamma*gamma)
-#                 x = x + (K@ (y - h(x.T).T - eta).T).T 
-# =============================================================================
+                eta = self.dist.sample((x.shape[0],))
+                
+                m_hat = x.T.mean(axis=1)
+                o_hat = (h(x.T)).mean(axis=1)
+                a = (x - m_hat)
+                b = (h(x.T).T - o_hat)
+                C_hat_vh = (a.T@b)/x.shape[0]
+                C_hat_hh = (b.T@b)/x.shape[0]
+                K = C_hat_vh @ torch.linalg.inv(C_hat_hh + torch.eye(self.input_dim[1])*gamma*gamma)
+                x = x + (K@ (y - h(x.T).T - eta).T).T 
                 #x = x.to(torch.float32)
                 
                 #x = self.m_hat + (x - self.m_hat)@self.A + torch.matmul( y - self.o_hat,self.K)
@@ -189,7 +179,7 @@ def OT(X,Y,X0_const,parameters,A,h,t,tau,Noise,rk45):
     def train(f,T,X_Train,Y_Train, iterations,learning_rate,ts,Ts,batch_size,k,K):
         f.train()
         T.train()
-        optimizer_T = torch.optim.Adam(T.parameters(), lr=learning_rate/10) 
+        optimizer_T = torch.optim.Adam(T.parameters(), lr=learning_rate*10) 
         optimizer_f = torch.optim.Adam(f.parameters(), lr=learning_rate/10)
 # =============================================================================
 #         optimizer_T = torch.optim.SGD(T.parameters(), lr=learning_rate,momentum=0.9) 
