@@ -1,16 +1,3 @@
-"""
-This code is intended to do the oscillation example
-
-The 1D system model is
-    x(n+1) = A(x(n)) + sai(n) , sai ~ N(0,sigma^2 I)
-    y(n+1) = h(x(n+1)) + eta(n+1) , eta ~ N(0,gamma^2 I)
-
-A(x) = (1-alpha)* x    
-h(x) = x , |x| , x^2 , x^3
-
-@author: Mohammad Al-Jarrah
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 import torch, math, time
@@ -26,8 +13,10 @@ from OT import OT
 from scipy.integrate import odeint
 #%matplotlib auto
 
-np.random.seed(101)
-torch.manual_seed(101)
+# =============================================================================
+# np.random.seed(101)
+# torch.manual_seed(101)
+# =============================================================================
 
 # Choose h(x) here, the observation rule
 def h(x):
@@ -35,15 +24,6 @@ def h(x):
     #return x[:2,]
     return x[::2,]
     #return x[1:,]
-# =============================================================================
-# # Choose A(x) here, the updates for the hidden state    
-# def A(x):
-#     dt = 0.1
-#     X = np.zeros_like(x)
-#     X[0,] = x[0,] + w[0]*dt + A[0]*np.sin(x[1,] - x[0,])*dt   
-#     X[1,] = x[1,] + w[1]*dt + A[1]*np.sin(x[0,] - x[1,])*dt
-#     return X%(2*np.pi)
-# =============================================================================
 
 def L63(x, t):
     """Lorenz 96 model"""
@@ -105,19 +85,6 @@ def Gen_Data(L,dy,N,x0_amp,sigmma0,sigmma,gamma,tau):
 # =============================================================================
     return x,y
 
-# =============================================================================
-# #%%
-# x = np.random.randn(3,10) 
-# y1 = np.zeros((2,10))
-# y2 = np.zeros_like(y1)
-# x1 = np.zeros_like(x)
-# x2 = np.zeros_like(x)
-# for i in range(10):
-#     x1[:,i] =  L63(x[:,i], 0.01)
-#     y1[:,i] = h(x1[:,i])
-# x2 = ML63(x, 0.01)
-# y2 = h(x2)
-# =============================================================================
 #%%    
 L = 3 # number of states
 tau = 1e-2 # timpe step 
@@ -163,97 +130,6 @@ for k in range(AVG_SIM):
 SAVE_X_EnKF , MSE_EnKF = EnKF(SAVE_True_X,SAVE_True_Y,X0,ML63,h,t,tau,Noise,Odeint)
 SAVE_X_SIR , MSE_SIR = SIR(SAVE_True_X,SAVE_True_Y,X0,ML63,h,t,tau,Noise,Odeint)
 SAVE_X_OT , MSE_OT = OT(SAVE_True_X,SAVE_True_Y,X0,parameters,L63,h,t,tau,Noise,Odeint)
-
-# =============================================================================
-# sys.exit()
-# =============================================================================
-#%%
-# =============================================================================
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.plot(SAVE_True_X[0,:,0],SAVE_True_X[0,:,1],SAVE_True_X[0,:,2],'k--')
-# for i in range(J):
-#     ax.plot(SAVE_X_EnKF[0,:,0,i],SAVE_X_EnKF[0,:,1,i],SAVE_X_EnKF[0,:,2,i],'C0',alpha = 0.1)
-# plt.show()
-# sys.exit()
-# =============================================================================
-
-# =============================================================================
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.plot(SAVE_True_X[0,:,0],SAVE_True_X[0,:,1],SAVE_True_X[0,:,2],'k--')
-# for i in range(J):
-#     ax.plot(SAVE_X_SIR[0,:,0,i],SAVE_X_SIR[0,:,1,i],SAVE_X_SIR[0,:,2,i],'C0',alpha = 0.1)
-# plt.show()
-# sys.exit()
-# =============================================================================
-# =============================================================================
-# plt.figure()
-# for l in range(L):
-#      for j in range(AVG_SIM): 
-#         plt.subplot(3,1,l+1)
-#         plt.plot(t,SAVE_True_X[j,:,l],'k--',label = l)
-#         plt.ylabel('X'+str(l+1))
-#         plt.legend()
-#         plt.show()
-# =============================================================================
-
-# =============================================================================
-# plt.figure()        
-# for l in range(L):
-#     for j in range(AVG_SIM):    
-#         plt.subplot(3,1,l+1)   
-#         for i in range(J):
-#             plt.plot(t,SAVE_X_OT[j,:,l,i],alpha = 0.5)
-#         plt.plot(t,SAVE_True_X[j,:,l],'k--')
-#         plt.xlabel('time')
-#         plt.ylabel('OT X'+str(l+1))
-#         plt.ylim(-50,50)
-#         plt.show()
-# =============================================================================
-
-for j in range(1):  
-    
-    plt.figure()   
-    for l in range(L):
-        plt.subplot(3,1,l+1)
-        for i in range(J):
-            plt.plot(t,SAVE_X_EnKF[j,:,l,i],'C0',alpha = 0.1)
-        plt.plot(t,SAVE_True_X[j,:,l],'k--')
-        plt.xlabel('time')
-        plt.ylabel('EnKF X'+str(l+1))
-        plt.show()
-    
-    plt.figure()   
-    for l in range(L):
-        plt.subplot(3,1,l+1)
-        for i in range(J):
-            plt.plot(t,SAVE_X_SIR[j,:,l,i],'C0',alpha = 0.1)
-        plt.plot(t,SAVE_True_X[j,:,l],'k--',label = 'dns')
-        plt.xlabel('time')
-        plt.ylabel('SIR X'+str(l+1))
-        #plt.legend()
-        plt.show()
-
-  
-    plt.figure()   
-    for l in range(L):
-        plt.subplot(3,1,l+1)
-        for i in range(J):
-            plt.plot(t,SAVE_X_OT[j,:,l,i],'C0',alpha = 0.1)
-        plt.plot(t,SAVE_True_X[j,:,l],'k--')
-        plt.xlabel('time')
-        plt.ylabel('OT X'+str(l+1))
-        plt.show()
-# =============================================================================
-# sys.exit()
-# =============================================================================
-#%%
-# =============================================================================
-# plt.figure()
-# plt.plot(t,y)
-# plt.show()
-# =============================================================================
 #%%
 plt.figure()
 plt.plot(t,MSE_EnKF,'g-.',label="EnKF")
@@ -273,50 +149,12 @@ plt.ylabel('log(mse)')
 plt.legend()
 plt.show()
 
-sys.exit()
-#%%
-# =============================================================================
-# for l in range(L):
-#     for j in range(AVG_SIM):
-#         #j = 35
-#         plt.figure()
-#         plt.subplot(3,1,1)
-#         for i in range(J):
-#             plt.plot(t,SAVE_X_EnKF[j,:,l,i],alpha = 0.2)
-#         plt.plot(t,SAVE_True_X[j,:,l],'k--',label = 'dns')
-#         #plt.xlabel('time')
-#         plt.ylabel('EnKF')
-#         #plt.title('$X^2_t$')
-#         plt.legend()
-#         plt.show()
-#     
-#     
-#         plt.subplot(3,1,2)
-#     
-#         for i in range(J):
-#             plt.plot(t,SAVE_X_OT[j,:,l,i],alpha = 0.5)
-#         plt.plot(t,SAVE_True_X[j,:,l],'k--',label = 'dns')
-#         #plt.xlabel('time')
-#         plt.ylabel('OT')
-#         plt.legend()
-#         plt.show()
-#     
-#         plt.subplot(3,1,3)
-#     
-#         for i in range(J):
-#             plt.plot(t,SAVE_X_SIR[j,:,l,i],alpha = 0.5)
-#         plt.plot(t,SAVE_True_X[j,:,l],'k--',label = 'dns')
-#         plt.xlabel('time')
-#         plt.ylabel('SIR')
-#         plt.legend()
-#         plt.show()
-# =============================================================================
-        
 # =============================================================================
 # sys.exit()
 # =============================================================================
+
 #%%
-np.savez('1.11_DATA_file_with_EnKF_10_sim_5sec.npz',\
+np.savez('DATA_file.npz',\
     time = t, Y_true = SAVE_True_Y,X_true = SAVE_True_X,Noise=Noise,\
     X_EnKF = SAVE_X_EnKF , X_OT = SAVE_X_OT , X_SIR = SAVE_X_SIR,\
         MSE_EnKF = MSE_EnKF , MSE_OT=MSE_OT, MSE_SIR = MSE_SIR)
