@@ -20,10 +20,10 @@ def h(x):
 # =============================================================================
 #     return x
 # =============================================================================
+# =============================================================================
     return x*x
 # =============================================================================
-#     return x*x*x
-# =============================================================================
+    # return x*x*x
 
 
 def A(x,t=0):
@@ -33,8 +33,6 @@ def A(x,t=0):
 
 
 load = np.load('DATA_file.npz') # h(x) = x^2
-
-
 
 data = {}
 for key in load:
@@ -61,6 +59,50 @@ L = X_true.shape[2]
 tau = 1e-1 # timpe step 
 [noise,sigmma,sigmma0,gamma,x0_amp] = Noise
 
+
+# for j in range(1):
+#     plt.figure(figsize=(10,7.2))  
+#     grid = plt.GridSpec(3, 1, wspace =0.15, hspace = 0.1)
+#     g1 = plt.subplot(grid[0, 0])
+    
+#     for i in range(SAMPLE_SIZE):
+#         plt.plot(time,X_EnKF[j,:,1,i],'g',alpha = 0.1)
+#     plt.plot(time,X_true[j,:,1],'k--',label = 'True state')
+#     #plt.xlabel('time')
+#     plt.ylabel('EnKF',fontsize=20)
+#     plt.legend()
+    
+#     plt.ylim([-6,6])
+#     ax = plt.gca()
+#     ax.get_xaxis().set_visible(False)
+#     # plt.legend()
+#     # plt.show()
+           
+#     #plt.figure()
+#     g1 = plt.subplot(grid[1, 0])
+#     #for j in range(1):
+#     for i in range(SAMPLE_SIZE):
+#         plt.plot(time,X_OT[j,:,1,i],'r',alpha = 0.1)
+#     plt.plot(time,X_true[j,:,1],'k--',alpha=1)
+#     plt.ylim([-6,6])
+#     plt.ylabel('OT',fontsize=20)
+#     ax = plt.gca()
+#     ax.get_xaxis().set_visible(False)
+#     #plt.legend()
+#     # plt.show()
+    
+#     g1 = plt.subplot(grid[2, 0])
+#     #for j in range(1):
+#     for i in range(SAMPLE_SIZE):
+#         plt.plot(time,X_SIR[j,:,1,i],'b',alpha = 0.1)
+#     plt.plot(time,X_true[j,:,1],'k--',alpha=1)
+#     plt.ylim([-6,6])
+#     plt.xlabel('time',fontsize=20)
+#     plt.ylabel('SIR',fontsize=20)
+#     #plt.legend()
+# =============================================================================
+# sys.exit()
+# =============================================================================
 #%%
 J_true = J*100
 X0 = np.zeros((AVG_SIM,L,J_true))
@@ -104,6 +146,19 @@ X = torch.from_numpy(X).to(torch.float32)
 X_EnKF = torch.from_numpy(X_EnKF).to(torch.float32)
 X_SIR = torch.from_numpy(X_SIR).to(torch.float32)
 X_OT = torch.from_numpy(X_OT).to(torch.float32)
+
+
+# =============================================================================
+# mean =  X.mean(axis=3,keepdims=True)
+# std = X.std(axis=3,keepdims=True)
+# 
+# X = (X-mean)/std
+# X_EnKF = (X_EnKF-mean)/std
+# X_OT = (X_OT-mean)/std
+# X_SIR = (X_SIR-mean)/std
+# =============================================================================
+
+
 mmd_EnKF = []
 mmd_SIR = []
 mmd_OT = []
@@ -153,6 +208,9 @@ g1 = plt.subplot(grid[1, 0])
 #for j in range(1):
 for i in range(SAMPLE_SIZE):
     plt.plot(time,X_OT[j,:,1,i],'r',alpha = 0.1)
+# =============================================================================
+#     plt.plot(time,X[j,:,1,i],'b',alpha = 0.1)
+# =============================================================================
 plt.plot(time,X_true[j,:,1],'k--',alpha=1)
 plt.ylim([-6,6])
 plt.ylabel('OT',fontsize=20)
