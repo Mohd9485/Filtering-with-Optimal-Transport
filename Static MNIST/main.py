@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Sep 18 12:52:02 2023
-
-@author: jarrah
-"""
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -23,7 +14,6 @@ from EnKF import EnKF
 import sys
 from SIR import SIR
 
-torch.manual_seed(11)
 # =============================================================================
 # from tensorboardX import SummaryWriter
 # =============================================================================
@@ -205,8 +195,8 @@ def h(z,a):
 
 #%%  
 
-condition_number = [9]
-R = [4]#,7,7,7]#,5,5]
+condition_number = [2]
+R = [3]#,7,7,7]#,5,5]
 r = R[0]
 
 L = 100 # number of states
@@ -215,9 +205,11 @@ tau = 1 # timpe step
 # =============================================================================
 # [0,15:26,8:20]
 # =============================================================================
-
-rows = torch.arange(14,26-r,r)
-columns = torch.arange(8,24-r,r)
+# =============================================================================
+# 17:26,7:20
+# =============================================================================
+rows = torch.arange(17,27-r,r)
+columns = torch.arange(7,24-r,r)
 T = len(rows)*len(columns) # final time in seconds
 N = int(T/tau) # number of time steps T = 20 s
 # =============================================================================
@@ -242,7 +234,7 @@ parameters['NUM_NEURON'] =  int(32*10) #64
 parameters['SAMPLE_SIZE'] = int(J) 
 parameters['BATCH_SIZE'] = int(64) #128
 parameters['LearningRate'] = 1e-3
-parameters['ITERATION'] = int(1024*4) 
+parameters['ITERATION'] = int(1)#024*4) 
 parameters['Final_Number_ITERATION'] = int(64*16*4) #int(64) #ITERATION 
 parameters['Time_step'] = N
 
@@ -251,7 +243,7 @@ examples = 1
 blur = True*0
 
 
-save_data_name = ['data_file.npz']
+save_data_name = ['DATA_file.npz']
 
 
 for l in range(len(R)):
@@ -314,7 +306,14 @@ for l in range(len(R)):
 
         test_index = Data[data.targets == condition_number[l]]
         test_ind = torch.randint(0, test_index.shape[0], (1,))
-        test_ind = 116 #37 # 6
+# =============================================================================
+#         test_ind = 116 #37 # 6
+# =============================================================================
+# =============================================================================
+#         test_ind = 29 # 6
+# =============================================================================
+        # test_ind = 422
+        print(test_ind)
 # =============================================================================
 #         test_ind = 206 # 3
 # =============================================================================
@@ -560,14 +559,12 @@ plt.subplot(1,2,1)
 plt.imshow(avg_imag[-1,], cmap=cmap)
 plt.title('Observed average parts')
 plt.axis('off')
-
-# =============================================================================
-# plt.subplot(1,2,2)
-# plt.imshow(y.reshape(int(y.shape[1]**0.5),int(y.shape[1]**0.5)), cmap=cmap)
-# =============================================================================
+plt.show()
 
 #%%
-np.savez('data_file2.npz',time = t, Y_true = y, X_true = X.to('cpu'), 
+# =============================================================================
+np.savez('DATA_file.npz',time = t, Y_true = y, X_true = X.to('cpu'), 
          true_image = z_true, blur_image= blur_image,test_ind = test_ind,#.item(),
          X_OT = SAVE_X_OT, X_SIR = SAVE_X_SIR, X_EnKF = SAVE_X_EnKF, 
          index_obs = h_index,Noise = Noise)
+# =============================================================================

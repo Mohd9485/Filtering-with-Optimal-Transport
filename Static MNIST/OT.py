@@ -1,21 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Aug  7 16:14:12 2023
-
-@author: jarrah
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jul  9 16:48:05 2023
-
-@author: jarrah
-"""
-
-
-
 import numpy as np
 import time
 import torch

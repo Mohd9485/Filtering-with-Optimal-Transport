@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul 31 12:07:11 2023
-
-@author: jarrah
-"""
-
-# prerequisites
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -231,7 +222,7 @@ with torch.no_grad():
 
 sys.exit()    
 #%%  
-torch.save(G.state_dict(), 'GAN_generator_save_new.pt')
-torch.save(D.state_dict(), 'GAN_discriminator_save_new.pt')   
+torch.save(G.state_dict(), 'GAN_generator.pt')
+torch.save(D.state_dict(), 'GAN_discriminator.pt')   
     
         

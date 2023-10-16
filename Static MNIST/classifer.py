@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Sep  5 14:44:40 2023
-
-@author: jarrah
-"""
-
-# prerequisites
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

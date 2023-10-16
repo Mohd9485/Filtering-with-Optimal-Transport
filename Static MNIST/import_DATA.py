@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jul 21 22:10:04 2023
-
-@author: jarrah
-"""
-# X(# of sim, time steps, L, J)
-#%%
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -69,48 +60,14 @@ class Classifer_Net(nn.Module):
         return F.log_softmax(x,dim=1)
       
 generator = Generator()
-generator.load_state_dict(torch.load('GAN_generator_save_new.pt'))
+generator.load_state_dict(torch.load('GAN_generator.pt'))
 
 classifer = Classifer_Net()
 classifer.load_state_dict(torch.load('classifer.pt'))
 
+#################################################################
+load = np.load('DATA_file.npz')
 
-# =============================================================================
-# path = '/Users/jarrah/Desktop/Summer doc/MNIST/GAN4/'
-# =============================================================================
-
-
-# =============================================================================
-# load = np.load('1.1_X_9_4pixel_with_noise_48.npz')
-# =============================================================================
-
-# =============================================================================
-# load = np.load('1.2_X_9_4pixel_without_noise_in_true_y_48.npz')
-# =============================================================================
-
-# =============================================================================
-# load = np.load('1.3_X_9_4pixel_without_noise_in_true_y_10times_noise_48.npz')
-# =============================================================================
-
-load = np.load('data_file2.npz')
-
-save = True*0
-# =============================================================================
-# figure_a = 'r7_a_X1_20to28_blur_ObsNoise_EnKFlayer.pdf'
-# figure_b = 'r7_b_X1_20to28_blur_ObsNoise_EnKFlayer.pdf'
-# figure_c = 'r7_c_X1_20to28_OT_blur_ObsNoise_EnKFlayer.pdf'
-# =============================================================================
-
-# =============================================================================
-# figure_a = 'r7_a_X9_lowerhalf_blur_ObsNoise_EnKFlayer.pdf'
-# figure_b = 'r7_b_X9_lowerhalf_blur_ObsNoise_EnKFlayer.pdf'
-# figure_c = 'r7_c_X9_lowerhalf_OT_blur_ObsNoise_EnKFlayer.pdf'
-# =============================================================================
-
-# ============================================================================
-# figure_c_SIR = 'r77_c_20to28_X1_SIR.pdf'
-# figure_c_EnKF = 'r77_c_20to28_X1_EnKF.pdf'
-# =============================================================================
 
 
 data = {}
@@ -134,7 +91,10 @@ blur_image = data['blur_image']
 
 Noise = data['Noise']
 
+test_ind = data['test_ind']
+
 print("Noise level : ", Noise[1])
+print("Test ind : ", test_ind)
 #%%
 AVG_SIM = X_OT.shape[0]
 J = X_OT.shape[3]
@@ -183,11 +143,11 @@ plt.figure(figsize = (20, 4.8))
 # =============================================================================
 # plt.suptitle('EnKF',fontsize=20)
 # =============================================================================
-grid = plt.GridSpec(plot_particles, plot_particles*4+2, wspace =0.01, hspace = 0.1)
+grid = plt.GridSpec(plot_particles, plot_particles*4+2, wspace =0.01, hspace = 0.0)
 g1 = plt.subplot(grid[0:2, 0:plot_particles-2])
 plt.imshow(true_image[0,], cmap=cmap)
 plt.axis('off')
-plt.title('True image')#,fontsize=16)
+plt.title('True image',fontsize=20)
 
 g2 = plt.subplot(grid[2:, 0:plot_particles-2])
 
@@ -205,7 +165,7 @@ rect = patches.Rectangle((index_obs[0,1],index_obs[0,0]), r, r, linewidth=2,
                          edgecolor='r', facecolor="none")
 g2.add_patch(rect)
 plt.axis('off')
-plt.title('Observed part')#,fontsize=16)
+plt.title('Observed part',fontsize=20)
 
 k=0
 for i in range(plot_particles):
@@ -223,7 +183,7 @@ for i in range(plot_particles):
         plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
         plt.axis('off')
         if k==1:
-            plt.title('     EnKF')#,fontsize=20)
+            plt.title('     EnKF',fontsize=20)
         
         plt.subplot(grid[0+i, 2*plot_particles+j+1])
         x_plot = torch.tensor(X_OT[0,-1,:,k]).to(torch.float32)
@@ -236,7 +196,7 @@ for i in range(plot_particles):
         plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
         plt.axis('off')
         if k==1:
-            plt.title('     OT')#,fontsize=20)
+            plt.title('     OT',fontsize=20)
             
         plt.subplot(grid[0+i, 3*plot_particles+j+2])
         x_plot = torch.tensor(X_SIR[0,-1,:,k]).to(torch.float32)
@@ -249,63 +209,10 @@ for i in range(plot_particles):
         plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
         plt.axis('off')
         if k==1:
-            plt.title('     SIR')#,fontsize=20)
+            plt.title('     SIR',fontsize=20)
             
         k += 1
 
-if save :
-    plt.savefig(path+figure_a)
-# =============================================================================
-# plt.show()
-# =============================================================================
-
-#%%
-
-
-# =============================================================================
-# cmap = 'gray' #None # 'gray'
-# 
-# 
-# plt.figure(figsize = (12, 4.8))
-# plt.subplot(1,3,1)
-# plt.imshow(true_image[0,], cmap=cmap)
-# plt.title('True image')
-# plt.axis('off')
-# 
-# 
-# plt.subplot(1,3,2)
-# plt.imshow(blur_image[0,], cmap=cmap)
-# plt.title('Blur image')
-# plt.axis('off')
-# 
-# plt.subplot(1,3,3)
-# plt.imshow(avg_imag[-1,], cmap=cmap)
-# plt.title('Observed average parts')
-# plt.axis('off')
-# 
-# 
-# 
-# 
-# # =============================================================================
-# # plt.figure(figsize = (8, 4.8))
-# # grid = plt.GridSpec(5, 8, wspace =0.05, hspace = 0.05)
-# # k=0
-# # for i in range(5):
-# #     for j in range(8):
-# #         plt.subplot(grid[i,j])
-# #         y_plot = Y_True[0,k,:].reshape(r,r)
-# #         plt.imshow(y_plot, cmap=cmap)
-# # # =============================================================================
-# # #         plt.autoscale()
-# # # =============================================================================
-# #         plt.axis('off')
-# #         k += 1
-# # =============================================================================
-# 
-# if save :
-#     plt.savefig(path+figure_b)
-# =============================================================================
-    
     
 #%%
 cmap = 'gray' #None # 'gray'
@@ -316,14 +223,31 @@ plot_particles = 16
 # =============================================================================
 # plt.figure(figsize = (8, 12))
 # =============================================================================
-plt.figure(figsize=(20,7.2))
-grid = plt.GridSpec(plot_particles+2, Y_True.shape[1], wspace =0.0, hspace = 0.0)
+plt.figure(figsize=(20,12))
+grid = plt.GridSpec(plot_particles+2, Y_True.shape[1]+1, wspace =0.0, hspace = 0.0)
 
-for j in range(Y_True.shape[1]):   
-    plt.subplot(grid[0, j])
+# =============================================================================
+# for j in range(Y_True.shape[1]):
+#     if j==0:
+#         plt.subplot(grid[0, j+1])
+#         plt.imshow(torch.zeros(28,28), cmap=cmap)
+#         plt.axis('off')
+#         plt.title(j+1)
+#     plt.subplot(grid[0, j+1])
+#     plt.imshow(avg_imag[j,], cmap=cmap)
+#     plt.axis('off')
+#     plt.title(j+1)
+# =============================================================================
+for j in range(Y_True.shape[1]):  
+    if j == 0:
+        plt.subplot(grid[0, j])
+        plt.imshow(np.zeros((28,28)), cmap=cmap)
+        plt.axis('off')
+        plt.title('t={}'.format(j))#,fontsize=10)
+    plt.subplot(grid[0, j+1])
     plt.imshow(avg_imag[j,], cmap=cmap)
     plt.axis('off')
-    plt.title(j+1)
+    plt.title(j+1)#,fontsize=20)
 
 plt.subplot(grid[1, 0:])
 plt.axhline(y=1,linewidth =2, color='r' )
@@ -331,7 +255,7 @@ plt.ylim([0,2])
 plt.axis('off')
 
 for i in range(plot_particles):
-    for j in range(Y_True.shape[1]):
+    for j in range(Y_True.shape[1]+1):
         plt.subplot(grid[2+i, j])
         x_plot = torch.tensor(X_OT[0,j,:,i]).to(torch.float32)
         x_plot = x_plot.reshape(1,-1)#.to(DEVICE)
@@ -342,16 +266,10 @@ for i in range(plot_particles):
 # =============================================================================
         plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
         plt.axis('off')
-
-if save :
-    plt.savefig(path+figure_c)    
-# =============================================================================
-# sys.exit()            
-# =============================================================================
+plt.suptitle('OT', fontsize=20)
 
 # %%
-
-plt.figure(figsize=(20,7.2))
+plt.figure(figsize=(20,12))
 grid = plt.GridSpec(3, len(time)+1, wspace =0.1, hspace = 0.1)
 
 # =============================================================================
@@ -384,7 +302,7 @@ for i in range(len(time)+1):
     if i == 0:
         plt.yticks(np.arange(0,10))
         ax.get_yaxis().set_visible(True) 
-        plt.ylabel('EnKF')
+        plt.ylabel('EnKF',fontsize=20)
         #plt.title('t={}'.format(i+1))
         plt.title('t={}'.format(i))
 
@@ -407,7 +325,7 @@ for i in range(len(time)+1):
     if i == 0:
         plt.yticks(np.arange(0,10))
         ax.get_yaxis().set_visible(True) 
-        plt.ylabel('OT')
+        plt.ylabel('OT',fontsize=20)
  
 
 
@@ -430,12 +348,120 @@ for i in range(len(time)+1):
     if i == 0:
         plt.yticks(np.arange(0,10))
         ax.get_yaxis().set_visible(True) 
-        plt.ylabel('SIR')
+        plt.ylabel('SIR',fontsize=20)
 
         
 plt.show()       
 
 sys.exit()
+#%%
+cmap = 'gray' #None # 'gray'
+plot_particles = 16
+# =============================================================================
+# plt.figure(figsize = (20, 7.2))
+# =============================================================================
+# =============================================================================
+# plt.figure(figsize = (8, 12))
+# =============================================================================
+plt.figure(figsize=(20,12))
+grid = plt.GridSpec(plot_particles+2, Y_True.shape[1]+1, wspace =0.0, hspace = 0.0)
+
+# =============================================================================
+# for j in range(Y_True.shape[1]):
+#     if j==0:
+#         plt.subplot(grid[0, j+1])
+#         plt.imshow(torch.zeros(28,28), cmap=cmap)
+#         plt.axis('off')
+#         plt.title(j+1)
+#     plt.subplot(grid[0, j+1])
+#     plt.imshow(avg_imag[j,], cmap=cmap)
+#     plt.axis('off')
+#     plt.title(j+1)
+# =============================================================================
+for j in range(Y_True.shape[1]):  
+    if j == 0:
+        plt.subplot(grid[0, j])
+        plt.imshow(np.zeros((28,28)), cmap=cmap)
+        plt.axis('off')
+        plt.title('t={}'.format(j))#,fontsize=10)
+    plt.subplot(grid[0, j+1])
+    plt.imshow(avg_imag[j,], cmap=cmap)
+    plt.axis('off')
+    plt.title(j+1)#,fontsize=20)
+
+plt.subplot(grid[1, 0:])
+plt.axhline(y=1,linewidth =2, color='r' )
+plt.ylim([0,2])
+plt.axis('off')
+
+for i in range(plot_particles):
+    for j in range(Y_True.shape[1]+1):
+        plt.subplot(grid[2+i, j])
+        x_plot = torch.tensor(X_EnKF[0,j,:,i]).to(torch.float32)
+        x_plot = x_plot.reshape(1,-1)#.to(DEVICE)
+        Z = generator(x_plot).to('cpu').detach().reshape(-1,28,28)
+# =============================================================================
+#         z = Variable(torch.randn(1, 100))
+#         Z = generator(z,torch.LongTensor(torch.argmax(x_plot,dim=1))).to('cpu').detach().reshape(-1,28,28)
+# =============================================================================
+        plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
+        plt.axis('off')
+
+plt.suptitle('EnKF', fontsize=20)
+
+
+cmap = 'gray' #None # 'gray'
+plot_particles = 16
+# =============================================================================
+# plt.figure(figsize = (20, 7.2))
+# =============================================================================
+# =============================================================================
+# plt.figure(figsize = (8, 12))
+# =============================================================================
+plt.figure(figsize=(20,12))
+grid = plt.GridSpec(plot_particles+2, Y_True.shape[1]+1, wspace =0.0, hspace = 0.0)
+
+# =============================================================================
+# for j in range(Y_True.shape[1]):
+#     if j==0:
+#         plt.subplot(grid[0, j+1])
+#         plt.imshow(torch.zeros(28,28), cmap=cmap)
+#         plt.axis('off')
+#         plt.title(j+1)
+#     plt.subplot(grid[0, j+1])
+#     plt.imshow(avg_imag[j,], cmap=cmap)
+#     plt.axis('off')
+#     plt.title(j+1)
+# =============================================================================
+for j in range(Y_True.shape[1]):  
+    if j == 0:
+        plt.subplot(grid[0, j])
+        plt.imshow(np.zeros((28,28)), cmap=cmap)
+        plt.axis('off')
+        plt.title('t={}'.format(j))#,fontsize=10)
+    plt.subplot(grid[0, j+1])
+    plt.imshow(avg_imag[j,], cmap=cmap)
+    plt.axis('off')
+    plt.title(j+1)#,fontsize=20)
+
+plt.subplot(grid[1, 0:])
+plt.axhline(y=1,linewidth =2, color='r' )
+plt.ylim([0,2])
+plt.axis('off')
+
+for i in range(plot_particles):
+    for j in range(Y_True.shape[1]+1):
+        plt.subplot(grid[2+i, j])
+        x_plot = torch.tensor(X_SIR[0,j,:,i]).to(torch.float32)
+        x_plot = x_plot.reshape(1,-1)#.to(DEVICE)
+        Z = generator(x_plot).to('cpu').detach().reshape(-1,28,28)
+# =============================================================================
+#         z = Variable(torch.randn(1, 100))
+#         Z = generator(z,torch.LongTensor(torch.argmax(x_plot,dim=1))).to('cpu').detach().reshape(-1,28,28)
+# =============================================================================
+        plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
+        plt.axis('off')
+plt.suptitle('SIR', fontsize=20)
 #%%
 x_plot = torch.tensor(X_SIR[0,-1,:,k]).to(torch.float32)
 x_plot = x_plot.reshape(1,-1)#.to(DEVICE)
@@ -460,8 +486,6 @@ for i in range(ind):
         plt.axis('off')
         k += 1
 
-if save :
-    plt.savefig(path+figure_c_EnKF)
     
 plt.figure(figsize=(12,7.2))
 grid = plt.GridSpec(ind+5, ind*2, wspace =0.05, hspace = 0.05)
@@ -476,8 +500,7 @@ for i in range(ind):
         plt.imshow(z.detach().reshape(28,28), cmap=cmap)
         plt.axis('off')
         k += 1
-if save :
-    plt.savefig(path+figure_c_SIR)
+
     
 plt.figure(figsize=(12,7.2))
 grid = plt.GridSpec(ind+5, ind*2, wspace =0.05, hspace = 0.05)
@@ -493,26 +516,6 @@ for i in range(ind):
         plt.axis('off')
         k += 1  
         
-if save :
-    plt.savefig(path+figure_c_OT)
-# =============================================================================
-# plt.savefig(path+'r_5_condition_on_lower_half_1000_particles_X_7.pdf')
-# =============================================================================
 plt.show()
  
 sys.exit()       
-#%%
-
-x_plot = torch.tensor(X_OT[0,-1,:,2]).to(torch.float32)
-x_plot = x_plot.reshape(1,-1)#.to(DEVICE)
-Z = generator(x_plot).to('cpu').detach().reshape(-1,28,28)    
-
-# =============================================================================
-# torch.save(Z,'condition_number2.pt')    
-# =============================================================================
-plt.figure()
-plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
-plt.axis('off')       
-# =============================================================================
-# plt.savefig('condition_number.jpg') 
-# =============================================================================
