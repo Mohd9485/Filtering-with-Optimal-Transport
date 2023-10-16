@@ -87,7 +87,6 @@ X_SIR = data['X_SIR']
 true_image = data['true_image']
 index_obs = data['index_obs']
 
-blur_image = data['blur_image']
 
 Noise = data['Noise']
 
@@ -462,6 +461,8 @@ for i in range(plot_particles):
         plt.imshow(Z.detach().reshape(28,28), cmap=cmap)
         plt.axis('off')
 plt.suptitle('SIR', fontsize=20)
+
+plt.show()
 #%%
 x_plot = torch.tensor(X_SIR[0,-1,:,k]).to(torch.float32)
 x_plot = x_plot.reshape(1,-1)#.to(DEVICE)
@@ -518,4 +519,3 @@ for i in range(ind):
         
 plt.show()
  
-sys.exit()       
