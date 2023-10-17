@@ -69,8 +69,7 @@ for l in range(L):
     elif l==2:
         plt.ylim([-34,74]) 
 
-    # plt.show()
- 
+
 # plt.figure()        
 for l in range(L):
     #for j in range(AVG_SIM):    

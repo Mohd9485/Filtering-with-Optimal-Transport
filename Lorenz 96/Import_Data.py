@@ -18,7 +18,6 @@ load = np.load('DATA_file.npz')
 # mse_OT_without = np.load('DATA_file_without_EnKF.npz')['MSE_OT']
 # =============================================================================
 
-
 data = {}
 for key in load:
     print(key)
