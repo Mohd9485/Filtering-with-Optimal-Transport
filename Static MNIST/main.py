@@ -205,7 +205,7 @@ parameters['NUM_NEURON'] =  int(32*10) #64
 parameters['SAMPLE_SIZE'] = int(J) 
 parameters['BATCH_SIZE'] = int(64) #128
 parameters['LearningRate'] = 1e-3
-parameters['ITERATION'] = int(1024*4) 
+parameters['ITERATION'] = int(1024) 
 parameters['Final_Number_ITERATION'] = int(64*16*4) #int(64) #ITERATION 
 parameters['Time_step'] = N
 
