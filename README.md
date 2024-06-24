@@ -18,10 +18,7 @@ $$
 where $\odot$ denotes the element-wise (i.e., Hadamard) product.
 
 <p align="center">
-<img src="/images/X.png" width="250" height="250"><img src="/images/XX.png" width="250" height="250"><img src="/images/XXX.png" width="250" height="250">
-</p>
-<p align="center">
-<img src="/images/mse_X.png" width="250" height="250"><img src="/images/mse_XX.png" width="250" height="250"><img src="/images/mse_XXX.png" width="250" height="250">
+<img src="/images/squared_static_example_high_SNR4.pdf" width="250" height="250"> <img src="/images/squared_static_example6.pdf" width="250" height="250">
 </p>
 
 
