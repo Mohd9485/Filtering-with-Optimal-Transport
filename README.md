@@ -15,7 +15,7 @@ $$
 \end{aligned}
 $$
 
-where $\odot$ denotes the element-wise (i.e., Hadamard) product.
+where $\odot$ denotes the element-wise (i.e., Hadamard) product. In the following left group of figures we set $\lambda_w=0.4$ and in the right group $\lambda_w=0.04$. 
 
 <p align="center">
 <img src="/images/squared_static_example.png" width="500" height="350"> <img src="/images/squared_static_example_high_SNR.png" width="500" height="350">
@@ -41,6 +41,9 @@ will once again lead to a bimodal posterior $\pi_t$ at every time step.
 
 
 ## 3. The Lorenz 63 model
+<p align="center">
+<img src="/images/state2_and_mse_L63.png" width="250" height="250">
+</p>
 
 ## 4. The Lorenz 96 model
 
