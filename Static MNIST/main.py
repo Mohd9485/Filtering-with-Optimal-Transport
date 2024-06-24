@@ -239,7 +239,7 @@ for l in range(len(R)):
     for k in range(AVG_SIM):
         generator.to(DEVICE)
         
-
+        X0[k,] = np.random.randn(L,J)
         test_index = Data[data.targets == condition_number[l]]
         test_ind = torch.randint(0, test_index.shape[0], (1,))
 
