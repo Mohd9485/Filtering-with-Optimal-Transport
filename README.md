@@ -41,11 +41,39 @@ will once again lead to a bimodal posterior $\pi_t$ at every time step.
 
 
 ## 3. The Lorenz 63 model
+We consider the three-dimensional  Lorenz 63 model which often serves as a benchmark for nonlinear filtering algorithms. The
+state $X_t$ is $3$-dimensional while the observation $Y_t$ is $2$-dimensional and consists of noisy measurements of the first and third components of the state. 
+
 <p align="center">
-<img src="/images/state2_and_mse_L63.png" width="250" height="250">
+<img src="/images/state2_and_mse_L63.png" width="750" height="350">
 </p>
 
 ## 4. The Lorenz 96 model
+Consider the following Lorenz-96 model:
+
+$$
+\begin{equation}
+\begin{split}
+\dot{X}(k) &= (X(k+1)-X(k-2))X(k-1)-X(k)+F + \sigma V,\quad \text{for}\quad k=1,\ldots,n \\
+Y_t &= \begin{bmatrix}
+    1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+\end{bmatrix} X_t + \sigma W_t
+\end{split}
+\end{equation}
+$$
+
+for $n=9$ where $X_0 \sim \mathcal{N}(\mu_0,\sigma_0^2I_n)$ and we choose the convention that $X(-1)=X(n-1)$, $X(0) = X(n)$, and $X(n+1)=X(1)$, and $F=2$ is a forcing constant. We choose the model parameters $\mu_0 = 25\cdot 1_n$, and $\sigma_{0}^2=10^2$. The observed noise $W$ is a $n$-dimensional standard Gaussian random variable with variance equal to $1$. 
+
+
+<p align="center">
+<img src="/images/state2_L96.png" width="500" height="350"><img src="/images/mse_L96.png" width="500" height="350">
+</p>
+
 
 ## 5. Static image in-painting on MNIST
 
