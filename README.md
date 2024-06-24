@@ -7,6 +7,23 @@ We perform several numerical experiments to study the performance of the OT appr
 taken to be resdiual neural nets. The network weights are learned with a gradient ascent-descent procedure using the Adam optimization algorithm. To reduce the computational cost, the optimization iteration number decreases as the time grows because the OT map is not expected to change significantly from a time step to the next one. Next we present some results from the paper.
 
 ## 1. A bimodal static example
+Consider the task of computing the conditional distribution of a Gaussian hidden random variable $X \sim N(0,I_n)$ given the observation
+
+$$
+\begin{aligned} 
+    Y=\frac{1}{2}X\odot X + \lambda_w W, \qquad W \sim N(0,I_n)
+\end{aligned}
+$$
+
+where $\odot$ denotes the element-wise (i.e., Hadamard) product.
+
+<p align="center">
+<img src="/images/X.png" width="250" height="250"><img src="/images/XX.png" width="250" height="250"><img src="/images/XXX.png" width="250" height="250">
+</p>
+<p align="center">
+<img src="/images/mse_X.png" width="250" height="250"><img src="/images/mse_XX.png" width="250" height="250"><img src="/images/mse_XXX.png" width="250" height="250">
+</p>
+
 
 ## 2. A bimodal dynamic example
 
