@@ -36,7 +36,7 @@ where $\{V_t,W_t\}_{t=1}^\infty$ are i.i.d sequences of standard Gaussian random
 will once again lead to a bimodal posterior $\pi_t$ at every time step.
 
 <p align="center">
-<img src="/images/xx_states.png" width="250" height="250"> <img src="/images/xx_mmd.png" width="250" height="250"> <img src="/images/dynamic_example_d_vs_mmd.png" width="250" height="250"> <img src="/images/dynamic_example_N_vs_mmd.png" width="250" height="250">
+<img src="/images/xx_states.png" width="250" height="250"><img src="/images/xx_mmd.png" width="250" height="250"><img src="/images/dynamic_example_d_vs_mmd.png" width="250" height="250"><img src="/images/dynamic_example_N_vs_mmd.png" width="250" height="250">
 </p>
 
 
