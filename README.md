@@ -71,7 +71,7 @@ for $n=9$ where $X_0 \sim \mathcal{N}(\mu_0,\sigma_0^2I_n)$ and we choose the co
 
 
 <p align="center">
-<img src="/images/state2_L96.png" width="500" height="350"><img src="/images/mse_L96.png" width="500" height="350">
+<img src="/images/states_L96.png" width="500" height="350"><img src="/images/mse_L96.png" width="500" height="350">
 </p>
 
 
